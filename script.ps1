@@ -27,3 +27,9 @@ public class NativeMethods {
 Set-Wallpaper $localPath
 
 Write-Host "Wallpaper has been changed to the Sony Cyberattack image."
+
+
+$desktop = (New-Object -ComObject Shell.Application).NameSpace(0)
+
+# The command that toggles "Show Desktop Icons"
+$desktop.Self.InvokeVerb("ToggleDesktopIcons")
