@@ -1,17 +1,26 @@
-# Check if running as administrator
-If (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "You need to run this script as an administrator!" -ForegroundColor Red
-    Exit
+# URL of the image you want as your wallpaper
+$imageUrl = "https://example.com/sony-cyberattack.jpg"
+
+# Path to save the image locally
+$localPath = "$env:USERPROFILE\Pictures\sony_cyberattack.jpg"
+
+# Download the image
+Invoke-WebRequest -Uri $imageUrl -OutFile $localPath
+
+# Function to set wallpaper
+function Set-Wallpaper($path) {
+    Add-Type @"
+using System.Runtime.InteropServices;
+
+public class Wallpaper {
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+}
+"@
+
+    # 20 = SPI_SETDESKWALLPAPER, 3 = SPIF_UPDATEINIFILE + SPIF_SENDCHANGE
+    [Wallpaper]::SystemParametersInfo(20, 0, $path, 3)
 }
 
-# Your admin-level commands go here
-Write-Host "Running with administrator privileges!" -ForegroundColor Green
-
-# Example: Create a folder in C:\Program Files (requires admin)
-$folderPath = "C:\Program Files\TestFolder"
-If (-Not (Test-Path $folderPath)) {
-    New-Item -ItemType Directory -Path $folderPath
-    Write-Host "Folder created at $folderPath"
-} else {
-    Write-Host "Folder already exists at $folderPath"
-}
+# Set the downloaded image as wallpaper
+Set-Wallpaper $localPath
